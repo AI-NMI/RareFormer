@@ -34,7 +34,7 @@ The pipeline uses two types of data:
 
 1. Save NDCT images as 3D `.npy` volumes in **Hounsfield units (HU)**, ordered as **[z, y, x]**, with positive LPS orientation.
 2. Select a reference configuration from `configs/`: `siemens.yaml`, `ge.yaml`, `philips.yaml`, or `united_imaging.yaml`. Verify the image dimensions, voxel spacing, and acquisition geometry for your data.
-3. Set the data paths and patient splits. Keep all scans from each patient in the same split. Example fields:
+3. Set the data paths and list all training and test cases in `data.cases` before the first simulation. Keep all scans from each patient in the same split. Example fields:
 
 ```yaml
 data:
@@ -44,6 +44,10 @@ data:
       patient: patient_001
       ndct: case_001/NDCT.npy
       split: train
+    - id: case_002
+      patient: patient_002
+      ndct: case_002/NDCT.npy
+      split: test
 
 run:
   output: ../runs/siemens
@@ -76,11 +80,11 @@ python rgc.py train --config configs/siemens.yaml
 
 RGC loads the trained MVR checkpoint and automatically prepares reconstruction-gradient supervision before training. Adjust the training settings under `mvr_train` and `rgc_train` in the YAML.
 
-Checkpoints are saved as `mvr.pt` and `rgc.pt` under `run.output/checkpoints/`. See `configs/paper/` for paper-specific protocol and split settings.
+Checkpoints are saved as `mvr.pt` and `rgc.pt` under `run.output/checkpoints/`. The four YAML files demonstrate single-protocol training; `configs/paper/` contains the reference protocol and split records for the paper.
 
 ## 4. Testing
 
-Prepare cases with `split: test` and run simulation as above. Restore and evaluate them using:
+Restore and evaluate the simulated cases marked `split: test` using:
 
 ```bash
 python test.py --config configs/siemens.yaml
